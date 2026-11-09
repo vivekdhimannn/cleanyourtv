@@ -6,17 +6,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+
+      - name: Show repo layout
+        run: |
+          ls -la
+          echo "--- launcher folder ---"
+          ls -la launcher || echo "No launcher folder found"
+
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
+
       - uses: android-actions/setup-android@v3
+
       - name: Build
-        working-directory: launcher
         run: |
+          if [ -f launcher/gradlew ]; then
+            cd launcher
+          fi
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
+
       - uses: actions/upload-artifact@v4
         with:
           name: launcher-apk
-          path: launcher/**/build/outputs/apk/debug/*.apk
+          path: "**/build/outputs/apk/debug/*.apk"
